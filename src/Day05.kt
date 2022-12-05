@@ -1,11 +1,8 @@
 import java.lang.Exception
 
 fun <T> MutableList<T>.pop(): T? {
-    val top = try {
-        this[0]
-    } catch (ex: Exception) {
-        return null
-    }
+    if (this.isEmpty()) return null
+    val top = this[0]
     removeAt(0)
     return top
 }
@@ -42,11 +39,7 @@ fun main() {
 
     fun moveSingle(from: MutableList<Char>, to: MutableList<Char>, count: Int) {
         repeat(count) {
-            try {
-                to.push(from.pop()!!)
-            } catch (e: Exception) {
-                // we don't care
-            }
+            from.pop()?.let { to.push(it) }
         }
     }
 
@@ -59,8 +52,10 @@ fun main() {
     }
 
 
-    fun part1(input: List<String>, towerCount: Int): String {
+    fun part1(input: List<String>): String {
         val indexOfSplit = input.indexOf("")
+        val towerCount = input[indexOfSplit - 1].length / 4 + 1
+
         val towerState = input.subList(0, indexOfSplit - 1)
         val movesList = input.subList(indexOfSplit + 1, input.size)
 
@@ -74,8 +69,10 @@ fun main() {
         return towers.joinToString(separator = "") { "${it.pop()}" }
     }
 
-    fun part2(input: List<String>, towerCount: Int): String {
+    fun part2(input: List<String>): String {
         val indexOfSplit = input.indexOf("")
+        val towerCount = input[indexOfSplit - 1].length / 4 + 1
+
         val towerState = input.subList(0, indexOfSplit - 1)
         val movesList = input.subList(indexOfSplit + 1, input.size)
 
@@ -91,12 +88,12 @@ fun main() {
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day05_test")
-    val pt1 = part1(testInput, 3)
+    val pt1 = part1(testInput)
     check(pt1 == "CMZ")
-    val pt2 = part2(testInput, 3)
+    val pt2 = part2(testInput)
     check(pt2 == "MCD")
 
     val input = readInput("Day05")
-    println(part1(input, 9))
-    println(part2(input, 9))
+    println(part1(input))
+    println(part2(input))
 }
