@@ -1,20 +1,11 @@
 import java.lang.Exception
 
-fun <T> MutableList<T>.pop(): T? {
-    if (this.isEmpty()) return null
-    val top = this[0]
-    removeAt(0)
-    return top
-}
-
-fun <T> MutableList<T>.push(element: T) = this.add(0, element)
-
-data class Move(val count: Int, val from: Int, val to: Int)
+private data class Move(val count: Int, val from: Int, val to: Int)
+private typealias Tower = ArrayDeque<Char>
 
 fun main() {
-
-    fun readInTowers(input: List<String>, towerCount: Int): List<MutableList<Char>> {
-        val towers = List(towerCount) { mutableListOf<Char>() }
+    fun readInTowers(input: List<String>, towerCount: Int): List<Tower> {
+        val towers = List(towerCount) { ArrayDeque<Char>() }
         input.forEach { line ->
             for (towerIndex in 0 until towerCount) {
                 val letterIndex = towerIndex * 4 + 1
@@ -37,63 +28,48 @@ fun main() {
         }
     }
 
-    fun moveSingle(from: MutableList<Char>, to: MutableList<Char>, count: Int) {
+    fun moveSingle(from: Tower, to: Tower, count: Int) {
         repeat(count) {
-            from.pop()?.let { to.push(it) }
+            from.removeFirst().let(to::addFirst)
         }
     }
 
-    fun moveMultiple(from: MutableList<Char>, to: MutableList<Char>, count: Int) {
+    fun moveMultiple(from: Tower, to: Tower, count: Int) {
         val top = from.take(count)
         repeat(count) {
-            from.pop()
+            from.removeFirst()
         }
         to.addAll(0, top)
     }
 
+    object : Challenge<String>("Day05", "CMZ", "MCD") {
+        fun Context.asTowersAndMoves(): Pair<List<Tower>, List<Move>> {
+            val (towerInput, moveInput) = fileContents.asParts()
 
-    fun part1(input: List<String>): String {
-        val indexOfSplit = input.indexOf("")
-        val towerCount = input[indexOfSplit - 1].length / 4 + 1
+            val towerLines = towerInput.asLines().dropLast(1)
+            val towerCount = towerLines.last().length / 4 + 1
+            val towers = readInTowers(towerLines, towerCount)
 
-        val towerState = input.subList(0, indexOfSplit - 1)
-        val movesList = input.subList(indexOfSplit + 1, input.size)
+            val moves = readInMoves(moveInput.asLines())
 
-        val towers = readInTowers(towerState, towerCount)
-        val moves = readInMoves(movesList)
-
-        moves.forEach {
-            moveSingle(towers[it.from], towers[it.to], it.count)
+            return towers to moves
         }
 
-        return towers.joinToString(separator = "") { "${it.pop()}" }
-    }
 
-    fun part2(input: List<String>): String {
-        val indexOfSplit = input.indexOf("")
-        val towerCount = input[indexOfSplit - 1].length / 4 + 1
-
-        val towerState = input.subList(0, indexOfSplit - 1)
-        val movesList = input.subList(indexOfSplit + 1, input.size)
-
-        val towers = readInTowers(towerState, towerCount)
-        val moves = readInMoves(movesList)
-
-        moves.forEach {
-            moveMultiple(towers[it.from], towers[it.to], it.count)
+        override fun Context.part1(): String {
+            val (towers, moves) = asTowersAndMoves()
+            moves.forEach {
+                moveSingle(towers[it.from], towers[it.to], it.count)
+            }
+            return towers.joinToString(separator = "") { it.first().toString() }
         }
 
-        return towers.joinToString(separator = "") { "${it.pop()}" }
-    }
-
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day05_test")
-    val pt1 = part1(testInput)
-    check(pt1 == "CMZ")
-    val pt2 = part2(testInput)
-    check(pt2 == "MCD")
-
-    val input = readInput("Day05")
-    println(part1(input))
-    println(part2(input))
+        override fun Context.part2(): String {
+            val (towers, moves) = asTowersAndMoves()
+            moves.forEach {
+                moveMultiple(towers[it.from], towers[it.to], it.count)
+            }
+            return towers.joinToString(separator = "") { it.first().toString() }
+        }
+    }.trySolve()
 }
