@@ -1,6 +1,3 @@
-import java.lang.Exception
-
-
 val possibleHands = mapOf(
     "A X" to 4,
     "B X" to 1,
@@ -40,11 +37,11 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day02_test")
+    val testInput = readInputAsLines("Day02_test")
     check(part1(testInput) == 15)
     check(part2(testInput) == 12)
 
-    val input = readInput("Day02")
+    val input = readInputAsLines("Day02")
     println(part1(input))
     println(part2(input))
 }
