@@ -6,6 +6,15 @@ repositories {
     mavenCentral()
 }
 
+
+val ktorVersion = "2.1.3"
+
+dependencies {
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-encoding:$ktorVersion")
+}
+
 tasks {
     sourceSets {
         main {
