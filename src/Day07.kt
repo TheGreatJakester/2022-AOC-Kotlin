@@ -1,4 +1,4 @@
-typealias SolutionType = Int
+private typealias SolutionType = Int
 
 private val dayNumber: String = "07"
 private val testSolution1: SolutionType = 95437
@@ -40,7 +40,7 @@ class ElfDir(val name: String, val parent: ElfDir? = null, val contents: Mutable
 }
 
 
-fun part1(input: String): SolutionType {
+private fun part1(input: String): SolutionType {
     val commandsInput = input.asLines()
     val commands = commandsInput.subList(1, commandsInput.size)
     val startDir = ElfDir("/")
@@ -72,7 +72,7 @@ fun part1(input: String): SolutionType {
     return smalls.sumOf { it.size }
 }
 
-fun part2(input: String): SolutionType {
+private fun part2(input: String): SolutionType {
     val commandsInput = input.asLines()
     val commands = commandsInput.subList(1, commandsInput.size)
     val startDir = ElfDir("/")
