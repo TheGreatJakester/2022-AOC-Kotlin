@@ -1,8 +1,10 @@
 package day09
 
-import asLines
-import readInputAsText
-import runSolver
+import utils.asLines
+import utils.numbers.justOne
+import utils.readInputAsText
+import utils.runSolver
+import java.lang.IllegalArgumentException
 import kotlin.math.absoluteValue
 
 private typealias SolutionType = Int
@@ -13,82 +15,99 @@ private const val dayNumber: String = "09"
 private val testSolution1: SolutionType? = 88
 private val testSolution2: SolutionType? = 36
 
+private class Knot(var tail: Knot? = null) {
+    var x: Int = 0
+    var y: Int = 0
 
-private typealias Knot = Pair<Int, Int>
+    val last: Knot get() = tail?.last ?: this
+    val asPair get() = x to y
 
-fun Knot.delta(x: Int, y: Int): Knot {
-    return first + x to second + y
-}
-
-fun Int.justOne() = this.coerceIn(-1, 1)
-
-/**
- * @return new position of tail
- */
-fun tailAfterFollowingHead(head: Knot, tail: Knot): Knot {
-    val xDelta = (head.first - tail.first)
-    val yDelta = (head.second - tail.second)
-
-    if (xDelta.absoluteValue < 2 && yDelta.absoluteValue < 2) {
-        return tail
+    fun moveUp() {
+        y += 1
+        updateTail()
     }
 
-    return tail.delta(xDelta.justOne(), yDelta.justOne())
+
+    fun moveDown() {
+        y -= 1
+        updateTail()
+    }
+
+
+    fun moveLeft() {
+        x -= 1
+        updateTail()
+    }
+
+
+    fun moveRight() {
+        x += 1
+        updateTail()
+    }
+
+    private fun updateTail() {
+        val t = tail ?: return
+        val xDelta = (x - t.x)
+        val yDelta = (y - t.y)
+
+        if (xDelta.absoluteValue < 2 && yDelta.absoluteValue < 2) {
+            return
+        }
+
+        t.x += xDelta.justOne()
+        t.y += yDelta.justOne()
+
+        t.updateTail()
+    }
+
+    companion object {
+        fun builtRopeOfLength(length: Int): Knot {
+            if(length < 1) throw IllegalArgumentException("Length must be 1 or more")
+
+            var curKnot: Knot = Knot()
+            repeat(length - 1) {
+                val nextKnot = Knot(curKnot)
+                curKnot = nextKnot
+            }
+            return curKnot
+        }
+    }
 }
 
-fun readMoves(input: String, processMove: (x: Int, y: Int) -> Unit) {
+private fun readMoves(input: String, head: Knot, afterMove: () -> Unit) {
     input.asLines().forEach { line ->
         val (move, count) = line.split(" ")
 
         repeat(count.toInt()) {
             when (move) {
-                "U" -> processMove(0, 1)
-                "D" -> processMove(0, -1)
-                "L" -> processMove(-1, 0)
-                "R" -> processMove(1, 0)
+                "U" -> head.moveUp()
+                "D" -> head.moveDown()
+                "L" -> head.moveLeft()
+                "R" -> head.moveRight()
                 else -> println("Unknown move $move")
             }
+            afterMove()
         }
     }
 }
 
+private fun doPartWithLength(input: String, length: Int): Int{
+    val tailPositions = mutableSetOf<Pair<Int, Int>>()
 
-private fun part1(input: String): SolutionType {
-    val tailPositions = mutableSetOf<Knot>()
+    val rope = Knot.builtRopeOfLength(length)
+    val tail = rope.last
 
-    var head = 0 to 0
-    var tail = 0 to 0
-
-    readMoves(input) { x, y ->
-        head = head.delta(x, y)
-        tail = tailAfterFollowingHead(head, tail)
-        tailPositions.add(tail)
+    readMoves(input, rope) {
+        tailPositions.add(tail.asPair)
     }
 
     return tailPositions.size
 }
 
-private fun part2(input: String): SolutionType {
-    val tailPositions = mutableSetOf<Knot>()
 
-    val knots = List<Knot>(10) { 0 to 0 }.toMutableList()
+private fun part1(input: String): SolutionType = doPartWithLength(input, 2)
 
-    readMoves(input) { x, y ->
-        knots[0] = knots.first().delta(x, y)
-
-        for (headIndex in 0 until knots.size - 1) {
-            val tailIndex = headIndex + 1
-            val lead = knots[headIndex]
-            val follow = knots[tailIndex]
-
-            knots[tailIndex] = tailAfterFollowingHead(lead, follow)
-        }
-
-        tailPositions.add(knots.last())
-    }
-
-    return tailPositions.size
-}
+private fun part2(input: String): SolutionType = doPartWithLength(input, 10)
 
 fun main() {
     runSolver("Test 1", readInputAsText("Day${dayNumber}_test"), testSolution1, ::part1)
