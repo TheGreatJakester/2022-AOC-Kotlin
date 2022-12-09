@@ -1,3 +1,5 @@
+import utils.readInputAsLines
+
 fun main() {
     fun part1(input: List<String>): Int {
         val elves = buildElfList(input)

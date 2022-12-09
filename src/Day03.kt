@@ -1,3 +1,5 @@
+import utils.readInputAsLines
+
 fun String.firstHalf(): String {
     return this.substring(0, this.length / 2)
 }

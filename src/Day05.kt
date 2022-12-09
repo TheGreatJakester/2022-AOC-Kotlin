@@ -1,3 +1,5 @@
+import utils.asLines
+import utils.asParts
 import java.lang.Exception
 
 private data class Move(val count: Int, val from: Int, val to: Int)

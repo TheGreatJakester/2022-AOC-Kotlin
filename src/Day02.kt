@@ -1,3 +1,5 @@
+import utils.readInputAsLines
+
 val possibleHands = mapOf(
     "A X" to 4,
     "B X" to 1,

@@ -1,3 +1,7 @@
+import utils.asLines
+import utils.readInputAsText
+import utils.runSolver
+
 private typealias SolutionType = Int
 
 private val dayNumber: String = "07"

@@ -1,3 +1,7 @@
+import utils.asLines
+import utils.readInputAsText
+import utils.runSolver
+
 private val dayNumber: String = "08"
 private val testSolution1 = 21
 private val testSolution2 = null
