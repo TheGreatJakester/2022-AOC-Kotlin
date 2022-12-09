@@ -14,9 +14,9 @@ private val testSolution1: SolutionType? = 88
 private val testSolution2: SolutionType? = 36
 
 
-private typealias RopeEnd = Pair<Int, Int>
+private typealias Knot = Pair<Int, Int>
 
-fun RopeEnd.delta(x: Int, y: Int): RopeEnd {
+fun Knot.delta(x: Int, y: Int): Knot {
     return first + x to second + y
 }
 
@@ -25,7 +25,7 @@ fun Int.justOne() = this.coerceIn(-1, 1)
 /**
  * @return new position of tail
  */
-fun tailFollowsHead(head: RopeEnd, tail: RopeEnd): RopeEnd {
+fun tailAfterFollowingHead(head: Knot, tail: Knot): Knot {
     val xDelta = (head.first - tail.first)
     val yDelta = (head.second - tail.second)
 
@@ -36,22 +36,8 @@ fun tailFollowsHead(head: RopeEnd, tail: RopeEnd): RopeEnd {
     return tail.delta(xDelta.justOne(), yDelta.justOne())
 }
 
-
-private fun part1(input: String): SolutionType {
-    val tailPositions = mutableSetOf<RopeEnd>()
-
-    val moves = input.asLines()
-
-    var head = 0 to 0
-    var tail = 0 to 0
-
-    fun processMove(xDelta: Int, yDelta: Int) {
-        head = head.delta(xDelta, yDelta)
-        tail = tailFollowsHead(head, tail)
-        tailPositions.add(tail)
-    }
-
-    moves.forEach { line ->
+fun readMoves(input: String, processMove: (x: Int, y: Int) -> Unit) {
+    input.asLines().forEach { line ->
         val (move, count) = line.split(" ")
 
         repeat(count.toInt()) {
@@ -64,56 +50,42 @@ private fun part1(input: String): SolutionType {
             }
         }
     }
+}
 
+
+private fun part1(input: String): SolutionType {
+    val tailPositions = mutableSetOf<Knot>()
+
+    var head = 0 to 0
+    var tail = 0 to 0
+
+    readMoves(input) { x, y ->
+        head = head.delta(x, y)
+        tail = tailAfterFollowingHead(head, tail)
+        tailPositions.add(tail)
+    }
 
     return tailPositions.size
 }
 
 private fun part2(input: String): SolutionType {
-    val tailPositions = mutableSetOf<RopeEnd>()
+    val tailPositions = mutableSetOf<Knot>()
 
-    val moves = input.asLines()
+    val knots = List<Knot>(10) { 0 to 0 }.toMutableList()
 
-    val knots = mutableListOf(
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0,
-        0 to 0
-    )
+    readMoves(input) { x, y ->
+        knots[0] = knots.first().delta(x, y)
 
-    fun processMove(xDelta: Int, yDelta: Int) {
-        knots[0] = knots.first().delta(xDelta, yDelta)
+        for (headIndex in 0 until knots.size - 1) {
+            val tailIndex = headIndex + 1
+            val lead = knots[headIndex]
+            val follow = knots[tailIndex]
 
-        for (i in 0 until knots.size) {
-            val lead = knots.getOrNull(i) ?: continue
-            val follow = knots.getOrNull(i + 1) ?: continue
-
-            knots[i + 1] = tailFollowsHead(lead, follow)
+            knots[tailIndex] = tailAfterFollowingHead(lead, follow)
         }
 
         tailPositions.add(knots.last())
     }
-
-    moves.forEach { line ->
-        val (move, count) = line.split(" ")
-
-        repeat(count.toInt()) {
-            when (move) {
-                "U" -> processMove(0, 1)
-                "D" -> processMove(0, -1)
-                "L" -> processMove(-1, 0)
-                "R" -> processMove(1, 0)
-                else -> println("Unknown move $move")
-            }
-        }
-    }
-
 
     return tailPositions.size
 }
