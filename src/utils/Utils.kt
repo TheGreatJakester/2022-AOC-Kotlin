@@ -40,11 +40,11 @@ fun String.asLines() = split("\n")
 fun String.asParts() = split("\n\n")
 
 
-fun <SolutionType> runSolver(
+fun <SolutionType, InputType> runSolver(
     runName: String,
-    input: String,
+    input: InputType,
     solutionCheck: SolutionType?,
-    solver: (String) -> SolutionType,
+    solver: (InputType) -> SolutionType,
 ) {
     try {
         val solution = solver(input)
