@@ -4,6 +4,7 @@ import utils.string.asLines
 import utils.readInputAsText
 import utils.runSolver
 import utils.string.blockChar
+import utils.string.squiggleChar
 
 private typealias SolutionType = Int
 
@@ -67,7 +68,7 @@ private fun part2(input: String): SolutionType {
     }
 
     pixels.chunked(40) {
-        println(it.joinToString(separator = "") { if (it) blockChar else " " })
+        println(it.joinToString(separator = "") { if (it) squiggleChar else " " })
     }
 
     return defaultSolution

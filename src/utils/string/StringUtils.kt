@@ -6,6 +6,7 @@ import java.security.MessageDigest
 
 const val blockChar = "▌"
 const val fullBlockChar = "█"
+const val squiggleChar = "▞"
 
 fun String.asLines() = split("\n")
 fun String.asParts() = split("\n\n")
