@@ -1,5 +1,5 @@
-import utils.asLines
-import utils.asParts
+import utils.string.asLines
+import utils.string.asParts
 import java.lang.Exception
 
 private data class Move(val count: Int, val from: Int, val to: Int)

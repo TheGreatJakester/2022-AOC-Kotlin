@@ -1,4 +1,4 @@
-import utils.asLines
+import utils.string.asLines
 import utils.readInputAsText
 import utils.runSolver
 

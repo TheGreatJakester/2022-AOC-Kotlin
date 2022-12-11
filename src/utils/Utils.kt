@@ -29,17 +29,6 @@ fun readInputAsLines(name: String) = File("src", "$name.txt")
 
 fun readInputAsText(name: String) = File("src", "$name.txt").readText()
 
-/**
- * Converts string to md5 hash.
- */
-fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
-    .toString(16)
-    .padStart(32, '0')
-
-fun String.asLines() = split("\n")
-fun String.asParts() = split("\n\n")
-
-
 fun <SolutionType, InputType> runSolver(
     runName: String,
     input: InputType,

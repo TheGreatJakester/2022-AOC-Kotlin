@@ -1,8 +1,9 @@
 package day10
 
-import utils.asLines
+import utils.string.asLines
 import utils.readInputAsText
 import utils.runSolver
+import utils.string.blockChar
 
 private typealias SolutionType = Int
 
@@ -54,10 +55,7 @@ private fun part2(input: String): SolutionType {
     var runningTotal = 1
 
     cycleSteps.forEachIndexed { index, step ->
-        val cycleIndex = index + 1
-        val screenPosition = cycleIndex % 40
-
-        runningTotal += step
+        val screenPosition = index % 40
 
         if (runningTotal in (screenPosition - 1)..(screenPosition + 1)) {
             pixels.add(true)
@@ -65,10 +63,11 @@ private fun part2(input: String): SolutionType {
             pixels.add(false)
         }
 
+        runningTotal += step
     }
 
-    pixels.map { if (it) "#" else "." }.chunked(40) {
-        println(it)
+    pixels.chunked(40) {
+        println(it.joinToString(separator = "") { if (it) blockChar else " " })
     }
 
     return defaultSolution
@@ -76,8 +75,8 @@ private fun part2(input: String): SolutionType {
 
 fun main() {
     runSolver("Test 1", readInputAsText("Day${dayNumber}_test"), testSolution1, ::part1)
-    runSolver("Test 2", readInputAsText("Day${dayNumber}_test"), testSolution2, ::part2)
-
     runSolver("Part 1", readInputAsText("Day${dayNumber}"), null, ::part1)
+
+    runSolver("Test 2", readInputAsText("Day${dayNumber}_test"), testSolution2, ::part2)
     runSolver("Part 2", readInputAsText("Day${dayNumber}"), null, ::part2)
 }
