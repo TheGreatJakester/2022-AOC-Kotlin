@@ -29,6 +29,16 @@ fun readInputAsLines(name: String) = File("src", "$name.txt")
 
 fun readInputAsText(name: String) = File("src", "$name.txt").readText()
 
+
+fun <T> List<List<T>>.forForEach(lambda: (x: Int, y: Int, el: T) -> Unit) {
+    this.forEachIndexed { y, sub ->
+        sub.forEachIndexed { x, el ->
+            lambda(x, y, el)
+        }
+    }
+}
+
+
 fun <SolutionType, InputType> runSolver(
     runName: String,
     input: InputType,
@@ -53,13 +63,15 @@ fun <SolutionType, InputType> runSolver(
 
 // Milliseconds after release time that we will wait, before trying to grab input.
 private const val WAIT_MIN = 900L
+
 // Will pick and random value from (0, WAIT_MUL) and add that to the wait time above, to limit blocking in case
 // other people are running this or similar schemes from similar locations.
 private const val WAIT_MUL = 500.0
+
 // Seconds under which we switch into wait and pounce mode.
 private const val DELAY_TIME = 120L
 
-suspend fun checkOrGetInput(year: Int = 2022, day: Int, dataDir: File = File("src")) : String {
+suspend fun checkOrGetInput(year: Int = 2022, day: Int, dataDir: File = File("src")): String {
     val dayFileName = String.format("day%02d.txt", day)
     val dataFile = File(dataDir, dayFileName)
     if (dataFile.exists()) {
@@ -101,8 +113,8 @@ class AoCWebScraper(private val sessionToken: String) : Closeable {
     }
 
     @Throws(ResponseException::class)
-    suspend fun grabInput(year: Int, day: Int) : String {
-        val data : String
+    suspend fun grabInput(year: Int, day: Int): String {
+        val data: String
         val response = client.get("https://adventofcode.com/$year/day/$day/input") {
             headers {
                 append(
@@ -121,6 +133,7 @@ class AoCWebScraper(private val sessionToken: String) : Closeable {
         }
         return data
     }
+
     override fun close() {
         client.close()
     }
