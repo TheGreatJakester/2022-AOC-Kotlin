@@ -12,9 +12,18 @@ private const val dayNumber: String = "14"
 private val testSolution1: SolutionType? = 24
 private val testSolution2: SolutionType? = 93
 
+
 typealias Point = Pair<Int, Int>
 
-private fun getGridFrom(input: String): MutableMap<Point, Boolean> {
+fun Point.pointsBellow() = listOf(
+    first to second + 1,
+    first - 1 to second + 1,
+    first + 1 to second + 1
+)
+
+val generationPoint = 500 to 0
+
+private fun getCaveFromInput(input: String): MutableSet<Point> {
     val linePairs = input.asLines().map { line ->
         line.split(" -> ").map { pointText ->
             val c = pointText.split(",")
@@ -22,7 +31,7 @@ private fun getGridFrom(input: String): MutableMap<Point, Boolean> {
         }
     }
 
-    val grid = mutableMapOf<Point, Boolean>()
+    val cavePoints = mutableSetOf<Point>()
 
     infix fun Int.overTo(other: Int): IntRange {
         if (this > other) {
@@ -32,16 +41,19 @@ private fun getGridFrom(input: String): MutableMap<Point, Boolean> {
     }
 
     fun addLine(from: Point, to: Point) {
+        // for vertical lines
         if (from.first == to.first) {
             for (y in from.second overTo to.second) {
-                grid[from.first to y] = true
+                cavePoints.add(from.first to y)
             }
-        } else if (from.second == to.second) {
-            for (x in from.first overTo to.first) {
-                grid[x to from.second] = true
-            }
-        } else {
-            throw Exception("I don't do diagonals")
+            return
+        }
+
+        val slope = (from.second - to.second).toFloat() / (from.first - to.first)
+
+        for (x in from.first overTo to.first) {
+            val y = (slope * (x - from.first)).toInt() + to.second
+            cavePoints.add(x to y)
         }
     }
 
@@ -52,46 +64,34 @@ private fun getGridFrom(input: String): MutableMap<Point, Boolean> {
         }
     }
 
-    return grid
+
+    return cavePoints
 }
 
 private fun part1(input: String): SolutionType {
-    val grid = getGridFrom(input)
-    val generationPoint = 500 to 0
+    val filledPoints = getCaveFromInput(input)
 
-    var sand: Point = generationPoint
     var sandCount = 0
 
-    fun isSandDeep() = sand.second > 1000
+    fun isSandDeep(sand: Point) = sand.second > 1000
 
-    fun updateSand(): Boolean {
-        if (isSandDeep()) return false
+    tailrec fun nextSandPoint(sand: Point = generationPoint): Point {
+        if (isSandDeep(sand)) return sand
 
-        val down = sand.first to sand.second + 1
-        val left = sand.first - 1 to sand.second + 1
-        val right = sand.first + 1 to sand.second + 1
+        sand.pointsBellow().firstOrNull {
+            !filledPoints.contains(it)
+        }?.let {
+            return nextSandPoint(it)
+        }
 
-        fun Point.isOpen() = !grid.getOrDefault(this, false)
-
-        if (down.isOpen()) {
-            sand = down
-            return true
-        } else if (left.isOpen()) {
-            sand = left
-            return true
-        } else if (right.isOpen()) {
-            sand = right
-            return true
-        } else return false
+        return sand
     }
 
     while (true) {
-        while (updateSand()) {
-        }
-        if (isSandDeep()) break
+        val sand = nextSandPoint()
+        if (isSandDeep(sand)) break
 
-        grid[sand] = true
-        sand = generationPoint
+        filledPoints.add(sand)
         sandCount += 1
     }
 
@@ -99,44 +99,28 @@ private fun part1(input: String): SolutionType {
 }
 
 private fun part2(input: String): SolutionType {
-    val grid = getGridFrom(input)
-    val generationPoint = 500 to 0
-
-    var sand: Point = generationPoint
+    val filledPoints = getCaveFromInput(input)
     var sandCount = 1
+    val floorLevel = filledPoints.maxOf { it.second } + 2
+    fun isSandOnFloor(sand: Point) = sand.second + 1 == floorLevel
 
+    tailrec fun nextSandPoint(sand: Point = generationPoint): Point {
+        if (isSandOnFloor(sand)) return sand
 
-    val floorLevel = grid.keys.maxOf { it.second } + 2
-    fun isSandOnFloor() = sand.second + 1 == floorLevel
+        sand.pointsBellow().firstOrNull {
+            !filledPoints.contains(it)
+        }?.let {
+            return nextSandPoint(it)
+        }
 
-    fun updateSand(): Boolean {
-        val down = sand.first to sand.second + 1
-        val left = sand.first - 1 to sand.second + 1
-        val right = sand.first + 1 to sand.second + 1
-
-        fun Point.isOpen() = !grid.getOrDefault(this, false)
-
-        if (isSandOnFloor()) {
-            return false
-        } else if (down.isOpen()) {
-            sand = down
-            return true
-        } else if (left.isOpen()) {
-            sand = left
-            return true
-        } else if (right.isOpen()) {
-            sand = right
-            return true
-        } else return false
+        return sand
     }
 
     while (true) {
-        while (updateSand()) { }
+        val sand = nextSandPoint()
+        if (sand == generationPoint) break
 
-        if(sand == generationPoint) break
-
-        grid[sand] = true
-        sand = generationPoint
+        filledPoints.add(sand)
         sandCount += 1
     }
 
