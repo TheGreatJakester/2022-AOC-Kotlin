@@ -124,6 +124,9 @@ private fun part2(input: String): SolutionType {
         sandCount += 1
     }
 
+    val sandOnFloor = filledPoints.count(::isSandOnFloor)
+    println("There are $sandOnFloor grains of sand on the floor of the cave")
+    
     return sandCount
 }
 
